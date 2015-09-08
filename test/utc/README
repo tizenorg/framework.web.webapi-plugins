@@ -1,0 +1,6 @@
+Tests and configuration files have been taken from:
+- repository: framework/web/wrt-plugins-tizen,
+- branch: devel/webapi/test,
+- folders: w/UnitTestSE/tests/Config/utc/ and w/UnitTestSE/tests/Tizen/.
+
+This files were not modified and should not be analysed with JSHint.
