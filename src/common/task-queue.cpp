@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 #include "task-queue.h"
 
-namespace webapi {
 namespace common {
 
 TaskQueue& TaskQueue::GetInstance() {
@@ -65,5 +64,11 @@ void TaskQueue::Async(const std::function<void()>& work) {
     g_idle_add(AfterWorkCallback<void>, d);
 }
 
+//TODO check if it would be needed in future
+//void TaskQueue::AsyncResponse(int callback_handle, const std::shared_ptr<picojson::value>& response) {
+//    Async<picojson::value>([callback_handle](const std::shared_ptr<picojson::value>& response) {
+//        wrt::common::NativeContext::GetInstance()->InvokeCallback(callback_handle,
+//                                                                 response->serialize());
+//    }, response);
+//}
 } // namespace common
-} // namespace webapi

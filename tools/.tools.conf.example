@@ -1,6 +1,0 @@
-# common
-TIZEN_SDK_DIR="/path_to/tizen-sdk"
-
-# deploy-to-device.sh
-GBS_PACKAGE_DIR="/path_to/GBS-ROOT/local/repos/tizenw_emulator/i586/RPMS"
-PACKAGE_NAME="nodejs-tizen-addons-0.0.1-0.i586"

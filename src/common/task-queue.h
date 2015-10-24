@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
+ 
 #ifndef WEBAPI_PLUGINS_COMMON_THREAD_SCHEDULER_H_
 #define WEBAPI_PLUGINS_COMMON_THREAD_SCHEDULER_H_
 
@@ -24,7 +24,6 @@
 
 #include "logger.h"
 
-namespace webapi {
 namespace common {
 
 class TaskQueue {
@@ -73,6 +72,9 @@ public:
      * @param[in] work - callback is going to be called in main glib loop
      */
     void Async(const std::function<void()>& work);
+
+    //TODO not needed now, but maybe in future
+//    void AsyncResponse(int callback_handle, const std::shared_ptr<picojson::value>& response);
 
 private:
     TaskQueue() {}
@@ -146,6 +148,5 @@ void TaskQueue::Async(const std::function<void(const std::shared_ptr<T>&)>& work
 }
 
 } // namespace common
-} // namespace webapi
 
 #endif // WEBAPI_PLUGINS_COMMON_THREAD_SCHEDULER_H_

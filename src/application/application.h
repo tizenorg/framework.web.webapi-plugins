@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,63 +14,28 @@
  *    limitations under the License.
  */
 
-#ifndef WEBAPI_PLUGINS_APPLICATION_APPLICATION_H__
-#define WEBAPI_PLUGINS_APPLICATION_APPLICATION_H__
+#ifndef SRC_APPLICATION_APPLICATION_H_
+#define SRC_APPLICATION_APPLICATION_H_
 
-#include "json-parser.h"
-#include "requested-application-control.h"
+#include <string>
+#include <memory>
 
-namespace webapi {
+#include "common/picojson.h"
+#include "application/requested_application_control.h"
+
+namespace extension {
 namespace application {
 
 class Application {
-public:
-    RequestedApplicationControl& app_control();
+ public:
+  RequestedApplicationControl& app_control();
+  void GetRequestedAppControl(const picojson::value& args, picojson::object* out);
 
-    /**
-     * Signature: @code void exit(); @endcode
-     * JSON: @code data: {method: 'Application_exit',
-     *             args: {}} @endcode
-     * Invocation: @code native.callSync(request); @endcode
-     * Return:
-     * @code
-     * {status: 'error', error: {name, message}}
-     * {status: 'success'}
-     * @endcode
-     */
-    void Exit(const webapi::common::json::Object& args, webapi::common::json::Object& out);
-
-    /**
-     * Signature: @code void hide(); @endcode
-     * JSON: @code data: {method: 'Application_hide',
-     *             args: {}} @endcode
-     * Invocation: @code native.callSync(request); @endcode
-     * Return:
-     * @code
-     * {status: 'error', error: {name, message}}
-     * {status: 'success'}
-     * @endcode
-     */
-    void Hide(const webapi::common::json::Object& args, webapi::common::json::Object& out);
-
-    /**
-     * Signature: @code RequestedApplicationControl getRequestedAppControl(); @endcode
-     * JSON: @code data: {method: 'Application_getRequestedAppControl',
-     *             args: {bundle}} @endcode
-     * Invocation: @code native.callSync(request); @endcode
-     * Return:
-     * @code
-     * {status: 'error', error: {name, message}}
-     * {status: 'success', result: RequestedApplicationControl}
-     * @endcode
-     */
-    void GetRequestedAppControl(const webapi::common::json::Object& args, webapi::common::json::Object& out);
-
-private:
-    RequestedApplicationControl app_control_;
+ private:
+  RequestedApplicationControl app_control_;
 };
 
-} // namespace application
-} // namespace webapi
+}  // namespace application
+}  // namespace extension
 
-#endif // WEBAPI_PLUGINS_APPLICATION_APPLICATION_H__
+#endif  // SRC_APPLICATION_APPLICATION_H_

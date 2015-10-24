@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,54 +13,54 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+ 
+#ifndef COMMON_CONVERTER_H_
+#define COMMON_CONVERTER_H_
 
-#ifndef WEBAPI_PLUGINS_COMMON_CONVERTER_H_
-#define WEBAPI_PLUGINS_COMMON_CONVERTER_H_
+#include "common/picojson.h"
+#include "common/platform_exception.h"
 
-#include "common/json-parser.h"
-#include "common/platform-exception.h"
-
-namespace webapi {
 namespace common {
 
-// This is a wrapper around std::stol which throws exceptions from common rather than std
+// This is a wrapper around std::stol which throws exceptions from common rather
+// than std
 long stol(const std::string &str, std::size_t *pos = 0, int base = 10);
 
-const common::json::Value &FindValue(const common::json::Object &in, const char *name);
+const picojson::value &FindValue(const picojson::object &in, const char *name);
 
-inline bool IsNull(const common::json::Value &in) {
-    return in.is<common::json::Null>();
+inline bool IsNull(const picojson::value &in) {
+  return in.is<picojson::null>();
 }
 
-inline bool IsNull(const common::json::Object &in, const char *name) {
-    return IsNull(FindValue(in, name));
-}
-
-template <typename T>
-const T &JsonCast(const common::json::Value &in) {
-    if (!in.is<T>()) {
-        throw common::UnknownException(std::string("Invalid JSON type"));
-    }
-    return in.get<T>();
+inline bool IsNull(const picojson::object &in, const char *name) {
+  return IsNull(FindValue(in, name));
 }
 
 template <typename T>
-const T &FromJson(const common::json::Object &in, const char *name) {
-    const common::json::Value &v = FindValue(in, name);
-    return JsonCast<T>(v);
+const T &JsonCast(const picojson::value &in) {
+  if (!in.is<T>()) {
+    throw common::UnknownException(std::string("Invalid JSON type"));
+  }
+  return in.get<T>();
+}
+
+template <typename T>
+const T &FromJson(const picojson::object &in, const char *name) {
+  const picojson::value &v = FindValue(in, name);
+  return JsonCast<T>(v);
 }
 
 template <typename T, typename... Names>
-const T &FromJson(const common::json::Object &in, const char *name, Names... names) {
-    const common::json::Value &v = FindValue(in, name);
-    if (!v.is<common::json::Object>()) {
-        throw common::UnknownException(std::string("Invalid JSON type for property: ") + name +
-                                       ".");
-    }
-    return FromJson<T>(v.get<common::json::Object>(), names...);
+const T &FromJson(const picojson::object &in, const char *name,
+                  Names... names) {
+  const picojson::value &v = FindValue(in, name);
+  if (!v.is<picojson::object>()) {
+    throw common::UnknownException(
+        std::string("Invalid JSON type for property: ") + name + ".");
+  }
+  return FromJson<T>(v.get<picojson::object>(), names...);
 }
 
 }  // common
-}  // webapi
 
-#endif // WEBAPI_PLUGINS_COMMON_CONVERTER_H_
+#endif  // COMMON_CONVERTER_H_

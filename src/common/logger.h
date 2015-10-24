@@ -1,76 +1,94 @@
-/*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
+// Copyright 2014 Samsung Electronics Co, Ltd. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-#ifndef WEBAPI_PLUGINS_COMMON_LOGGER_H_
-#define WEBAPI_PLUGINS_COMMON_LOGGER_H_
+#ifndef COMMON_LOGGER_H_
+#define COMMON_LOGGER_H_
 
 #include <dlog.h>
-
+#include <string>
+#include <cstring>
 #include <sstream>
 
-#undef LOG_TAG
-#define LOG_TAG "WEBAPI-PLUGINS"
+#include "common/utils.h"
 
-#define _LOGGER(prio, fmt, args...) \
-    do { \
-        std::ostringstream platformLog; \
-        platformLog << "%s: %s(%d) > "; \
-        platformLog << fmt; \
-        print_log(prio, LOG_TAG, platformLog.str().c_str(), __MODULE__, __func__, __LINE__, ##args); \
-    } while(0)
+#undef LOGGER_TAG
+#define LOGGER_TAG "WEBAPI_PLUGINS"
 
-#ifdef TIZEN_ENGINEER_MODE
-    #define LoggerD(fmt, args...)   _LOGGER(DLOG_DEBUG, fmt, ##args)
-    #define LoggerI(fmt, args...)   _LOGGER(DLOG_INFO, fmt, ##args)
-    #define LoggerW(fmt, args...)   _LOGGER(DLOG_WARN, fmt, ##args)
-    #define LoggerE(fmt, args...)   _LOGGER(DLOG_ERROR, fmt, ##args)
+#define _LOGGER_LOG(prio, fmt, args...) \
+  LOG_(LOG_ID_MAIN, prio, LOGGER_TAG, fmt, ##args)
+
+#define _LOGGER_SLOG(prio, fmt, args...) \
+  SECURE_LOG_(LOG_ID_MAIN, prio, LOGGER_TAG, fmt, ##args)
+
+#define LoggerD(fmt, args...) _LOGGER_LOG(DLOG_DEBUG, fmt, ##args)
+#define LoggerI(fmt, args...) _LOGGER_LOG(DLOG_INFO, fmt, ##args)
+#define LoggerW(fmt, args...) _LOGGER_LOG(DLOG_WARN, fmt, ##args)
+#define LoggerE(fmt, args...) _LOGGER_LOG(DLOG_ERROR, fmt, ##args)
+
+#define SLoggerD(fmt, args...) _LOGGER_SLOG(DLOG_DEBUG, fmt, ##args)
+#define SLoggerI(fmt, args...) _LOGGER_SLOG(DLOG_INFO, fmt, ##args)
+#define SLoggerW(fmt, args...) _LOGGER_SLOG(DLOG_WARN, fmt, ##args)
+#define SLoggerE(fmt, args...) _LOGGER_SLOG(DLOG_ERROR, fmt, ##args)
+
+// A few definitions of macros that don't generate much code. These are used
+// by LOGGER() and LOGGER_IF, etc. Since these are used all over our code, it's
+// better to have compact code for these operations.
+#ifdef TIZEN_DEBUG_ENABLE
+#define COMPACT_LOG_DEBUG \
+  LogMessage(__MODULE__, __func__, __LINE__, DLOG_DEBUG).stream()
 #else
-    #undef LOGD
-    #define LOGD(...)
-    #undef LOGI
-    #define LOGI(...)
-    #undef LOGW
-    #define LOGW(...)
-
-    #define LoggerD(fmt, args...)   do { } while(0)
-    #define LoggerI(fmt, args...)   do { } while(0)
-    #define LoggerW(fmt, args...)   do { } while(0)
-    #ifndef LOGS_DISABLED_LOGE_ENABLED
-        #define LoggerE(fmt, args...)   do { } while(0)
-        #undef LOGE
-        #define LOGE(...)
-    #else
-        #define LoggerE(fmt, args...)   _LOGGER(DLOG_ERROR, fmt, ##args)
-    #endif // !LOGS_DISABLED_WITHOUT_LOGE
+#define COMPACT_LOG_DEBUG \
+  true ? (void) 0 : LogMessageVoidify() & (std::ostringstream())
 #endif
 
-#ifdef TIZEN_ENGINEER_MODE
-#define _SLOGGER(prio, fmt, args...) \
-    do { \
-        std::ostringstream platformLog; \
-        platformLog << "%s: %s(%d) > [SECURE_LOG] "; \
-        platformLog << fmt; \
-        print_log(prio, LOG_TAG, platformLog.str().c_str(), __MODULE__, __func__, __LINE__, ##args); \
-    } while(0)
-#else
-#define _SLOGGER(prio,fmt,args...)  do { } while(0)
-#endif
+#define COMPACT_LOG_INFO \
+  LogMessage(__MODULE__, __func__, __LINE__, DLOG_INFO).stream()
+#define COMPACT_LOG_WARN \
+  LogMessage(__MODULE__, __func__, __LINE__, DLOG_WARN).stream()
+#define COMPACT_LOG_ERROR \
+  LogMessage(__MODULE__, __func__, __LINE__, DLOG_ERROR).stream()
 
-#define SLoggerD(fmt, args...)  _SLOGGER(DLOG_DEBUG, fmt, ##args)
-#define SLoggerI(fmt, args...)  _SLOGGER(DLOG_INFO, fmt, ##args)
-#define SLoggerE(fmt, args...)  _SLOGGER(DLOG_ERROR, fmt, ##args)
+#define LOGGER(priority) COMPACT_LOG_ ## priority
+#define LOGGER_IF(priority, condition) \
+  !(condition) ? (void) 0 : LogMessageVoidify() & (LOGGER(priority))
 
-#endif // WEBAPI_PLUGINS_COMMON_LOGGER_H_
+// This class more or less represents a particular log message.
+// You create an instance of LogMessage and then stream stuff to it.
+// When you finish streaming to it, ~LogMessage is called and the
+// full message gets streamed to dlog.
+//
+// You shouldn't actually use LogMessage's constructor to log things,
+// though. You should use the LOGGER() macro (and variants thereof) above.
+class LogMessage {
+ public:
+  LogMessage(const char* file, const char* function, int line,
+      log_priority priority);
+  ~LogMessage();
+
+  std::ostream& stream() { return stream_; }
+
+ private:
+  const char* file_;
+  const char* function_;
+  const int line_;
+  log_priority priority_;
+
+  std::ostringstream stream_;
+
+  DISALLOW_COPY_AND_ASSIGN(LogMessage);
+};
+
+// This class is used to explicitly ignore values in the conditional
+// logging macros. This avoids compiler warnings like "value computed
+// is not used" and "statement has no effect".
+class LogMessageVoidify {
+public:
+  LogMessageVoidify() {}
+
+  // This has to be an operator with a precedence lower than << but
+  // higher than ?:
+  void operator&(std::ostream &) {}
+};
+
+#endif // COMMON_LOGGER_H_

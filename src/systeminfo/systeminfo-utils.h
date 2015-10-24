@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,182 +18,47 @@
 #define WEBAPI_PLUGINS_SYSTEMINFO_SYSTEMINFO_UTILS_H__
 
 #include <string>
-#include <functional>
+#include <system_settings.h>
+#include <vconf.h>
+#include <vconf-internal-keys.h>
+#include <ITapiSim.h>
+#include <TelNetwork.h>
+#include "common/picojson.h"
+#include "common/platform_result.h"
+#include "systeminfo/systeminfo_device_capability.h"
 
-#include "json-parser.h"
-
-namespace webapi {
+namespace extension {
 namespace systeminfo {
 
 struct CpuInfo {
-    long long usr;
-    long long nice;
-    long long system;
-    long long idle;
-    double load;
+  long long usr;
+  long long nice;
+  long long system;
+  long long idle;
+  double load;
 };
 
-typedef std::function<void(void)> SysteminfoUtilsCallback;
-
 class SysteminfoUtils {
-public:
-    static webapi::common::json::Value GetPropertyValue(const std::string& prop);
-
-    static void RegisterBatteryListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterBatteryListener();
-    static void RegisterCpuListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterCpuListener();
-    static void RegisterStorageListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterStorageListener();
-    static void RegisterDisplayListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterDisplayListener();
-    static void RegisterDeviceOrientationListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterDeviceOrientationListener();
-    static void RegisterLocaleListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterLocaleListener();
-    static void RegisterNetworkListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterNetworkListener();
-    static void RegisterWifiNetworkListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterWifiNetworkListener();
-    static void RegisterCellularNetworkListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterCellularNetworkListener();
-    static void RegisterPeripheralListener(const SysteminfoUtilsCallback& callback);
-    static void UnregisterPeripheralListener();
-
-private:
-    static void ReportBattery(webapi::common::json::Object& out);
-    static void ReportCpu(webapi::common::json::Object& out);
-
-    static void ReportDisplay(webapi::common::json::Object& out);
-    static void ReportDeviceOrientation(webapi::common::json::Object& out);
-
-    static void ReportBuild(webapi::common::json::Object& out);
-    static void ReportLocale(webapi::common::json::Object& out);
-    static void ReportNetwork(webapi::common::json::Object& out);
-    static void ReportWifiNetwork(webapi::common::json::Object& out);
-    static void ReportCellularNetwork(webapi::common::json::Object& out);
-    static void ReportSim(webapi::common::json::Object& out);
-    static void ReportPeripheral(webapi::common::json::Object& out);
-
-    static void ReportStorage(webapi::common::json::Object& out);
+ public:
+  static common::PlatformResult GetVconfInt(const char *key, int *value);
+  static common::PlatformResult GetRuntimeInfoString(system_settings_key_e key,
+                                                     std::string* platform_string);
+  static common::PlatformResult CheckTelephonySupport();
+  static common::PlatformResult CheckCameraFlashSupport();
+  static common::PlatformResult CheckIfEthernetNetworkSupported();
+  static common::PlatformResult GetTotalMemory(long long* result);
+  static common::PlatformResult GetAvailableMemory(long long* result);
+  static common::PlatformResult RegisterVconfCallback(const char *in_key, vconf_callback_fn cb,
+                                                            void* event_ptr);
+  static common::PlatformResult UnregisterVconfCallback(const char *in_key, vconf_callback_fn cb);
+  static common::PlatformResult RegisterTapiChangeCallback(TapiHandle *handle, const char *noti_id,
+                                                           tapi_notification_cb callback,
+                                                           void *user_data);
+  static common::PlatformResult UnregisterTapiChangeCallback(TapiHandle *handle,
+                                                             const char *noti_id);
 };
 
 typedef unsigned char byte;
-
-class SystemInfoDeviceCapability {
-public:
-    static webapi::common::json::Value GetCapability(const std::string& key);
-
-    static bool IsBluetooth();
-    static bool IsNfc();
-    static bool IsNfcReservedPush();
-    static unsigned short GetMultiTouchCount();
-    static bool IsInputKeyboard();
-    static bool IsInputKeyboardLayout();
-    static bool IsWifi();
-    static bool IsWifiDirect();
-    static std::string GetPlatformName();
-    static std::string GetPlatformVersion();
-    static std::string GetWebApiVersion();
-    static bool IsFmRadio();
-    static bool IsOpengles();
-    static bool IsOpenglesVersion11();
-    static bool IsOpenglesVersion20();
-    static std::string GetOpenglesTextureFormat();
-    static bool IsSpeechRecognition();
-    static bool IsSpeechSynthesis();
-    static bool IsAccelerometer();
-    static bool IsAccelerometerWakeup();
-    static bool IsBarometer();
-    static bool IsBarometerWakeup();
-    static bool IsGyroscope();
-    static bool IsGyroscopeWakeup();
-    static bool IsCamera();
-    static bool IsCameraFront();
-    static bool IsCameraFrontFlash();
-    static bool IsCameraBack();
-    static bool IsCameraBackFlash();
-    static bool IsLocation();
-    static bool IsLocationGps();
-    static bool IsLocationWps();
-    static bool IsMicrophone();
-    static bool IsUsbHost();
-    static bool IsUsbAccessory();
-    static bool IsScreenOutputRca();
-    static bool IsScreenOutputHdmi();
-    static bool IsGraphicsAcceleration();
-    static bool IsPush();
-    static bool IsTelephony();
-    static bool IsTelephonyMMS();
-    static bool IsTelephonySMS();
-    static std::string GetPlatfomCoreCpuArch();
-    static std::string GetPlatfomCoreFpuArch();
-    static bool IsSipVoip();
-    static bool IsMagnetometer();
-    static bool IsMagnetometerWakeup();
-    static bool IsPhotometer();
-    static bool IsPhotometerWakeup();
-    static bool IsProximity();
-    static bool IsProximityWakeup();
-    static bool IsTiltmeter();
-    static bool IsTiltmeterWakeup();
-    static bool IsDataEncryption();
-    static bool IsAutoRotation();
-    static bool IsVisionImageRecognition();
-    static bool IsVisionQrcodeGeneration();
-    static bool IsVisionQrcodeRecognition();
-    static bool IsVisionFaceRecognition();
-    static bool IsSecureElement();
-    static std::string GetProfile();
-
-    static std::string GetNativeAPIVersion();
-    static std::string GetDuid();
-    static bool IsScreenSizeNormal();
-    static bool IsScreenSize480_800();
-    static bool IsScreenSize720_1280();
-    static bool IsShellAppWidget();
-    static bool IsNativeOspCompatible();
-
-    //additional capabilities
-    static bool IsAccount();
-    static bool IsArchive();
-    static bool IsBadge();
-    static bool IsBookmark();
-    static bool IsCalendar();
-    static bool IsContact();
-    static bool IsContent();
-    static bool IsDataSync();
-    static bool IsDownload();
-    static bool IsExif();
-    static bool IsGamePad();
-    static bool IsMessagingEmail();
-    static bool IsMessaging();
-    static bool IsBluetootHealth();
-    static bool IsBluetoothAlwaysOn();
-    static bool IsNfcEmulation();
-    static bool IsNotification();
-    static bool IsPower();
-    static bool IsWebSetting();
-    static bool IsSystemSetting();
-    static bool IsSystemSettingHomeScreen();
-    static bool IsSystemSettingLockScreen();
-    static bool IsSystemSettingIncomingCall();
-    static bool IsSystemSettingNotificationEmail();
-    static bool IsBattery();
-    static bool IsCoreAPI();
-    static bool IsPressure();
-    static bool IsUltraviolet();
-    static bool IsPedometer();
-    static bool IsWristUp();
-    static bool IsHrm();
-    static bool IsScreen();
-    static bool IsScreenSize320_320();
-private:
-    static std::string GenerateDuid();
-    static std::string GenerateId(char* pDeviceString);
-    static void GenerateCrc64(char* pDeviceString, unsigned long long int* value);
-    static std::string Base32Encode(byte* value);
-};
 
 } // namespace systeminfo
 } // namespace webapi
