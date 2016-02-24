@@ -587,6 +587,10 @@ var BluetoothLEDevice = function(data) {
             set : function(){},
             get : function(){
               var service_uuids = uuids ? uuids.slice() : null;
+              var result = native.callSync('BluetoothLEDevice_getServiceUuids', {address : address});
+              if (native.isSuccess(result)) {
+                service_uuids = native.getResultObject(result);
+              }
               return service_uuids;
             }
         },
@@ -1637,7 +1641,7 @@ var BluetoothGATTCharacteristic = function(data, address) {
     }
   });
 
-  this.readValue = function() {
+  BluetoothGATTCharacteristic.prototype.readValue = function() {
       console.log('Entered BluetoothGATTCharacteristic.readValue()');
 
       xwalk.utils.checkPrivilegeAccess4Ver("2.4", Privilege.BLUETOOTH, Privilege.BLUETOOTH_ADMIN);
@@ -1670,7 +1674,7 @@ var BluetoothGATTCharacteristic = function(data, address) {
       }
     };
 
-    this.writeValue = function() {
+    BluetoothGATTCharacteristic.prototype.writeValue = function() {
       console.log('Entered BluetoothGATTCharacteristic.writeValue()');
 
       xwalk.utils.checkPrivilegeAccess4Ver("2.4", Privilege.BLUETOOTH, Privilege.BLUETOOTH_ADMIN);
@@ -1708,7 +1712,7 @@ var BluetoothGATTCharacteristic = function(data, address) {
       }
     };
 
-  this.addValueChangeListener = function() {
+  BluetoothGATTCharacteristic.prototype.addValueChangeListener = function() {
     console.log('Entered BluetoothGATTCharacteristic.addValueChangeListener()');
 
     xwalk.utils.checkPrivilegeAccess4Ver("2.4", Privilege.BLUETOOTH, Privilege.BLUETOOTH_ADMIN);
@@ -1729,7 +1733,7 @@ var BluetoothGATTCharacteristic = function(data, address) {
     return _bluetoothGATTCharacteristicListener.addListener(callback, callArgs);
   };
 
-  this.removeValueChangeListener = function() {
+  BluetoothGATTCharacteristic.prototype.removeValueChangeListener = function() {
     console.log('Entered BluetoothGATTCharacteristic.removeValueChangeListener()');
 
     var args = AV.validateMethod(arguments, [{
@@ -1855,7 +1859,7 @@ var BluetoothGATTDescriptor = function(data, address) {
   //address_ is needed to control if device is still connected
   var address_ = address;
 
-  this.readValue = function() {
+  BluetoothGATTDescriptor.prototype.readValue = function() {
     console.log('Entered BluetoothGATTDescriptor.readValue()');
 
     xwalk.utils.checkPrivilegeAccess4Ver("2.4", Privilege.BLUETOOTH, Privilege.BLUETOOTH_ADMIN);
@@ -1888,7 +1892,7 @@ var BluetoothGATTDescriptor = function(data, address) {
     }
   };
 
-  this.writeValue = function() {
+  BluetoothGATTDescriptor.prototype.writeValue = function() {
     console.log('Entered BluetoothGATTDescriptor.writeValue()');
 
     xwalk.utils.checkPrivilegeAccess4Ver("2.4", Privilege.BLUETOOTH, Privilege.BLUETOOTH_ADMIN);

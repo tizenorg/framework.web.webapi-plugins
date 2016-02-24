@@ -1379,6 +1379,16 @@ PlatformResult CalendarItem::RecurrenceRuleToJson(calendar_record_h rec,
   }
   out["interval"] = picojson::value(static_cast<double>(interval));
 
+  int occurrence_count;
+  status =
+      CalendarRecord::GetInt(rec, _calendar_event.count, &occurrence_count);
+  if (status.IsError()) {
+    LoggerE("Error: %s", status.message().c_str());
+    return status;
+  }
+  out["occurrenceCount"] =
+      picojson::value(static_cast<double>(occurrence_count));
+
   calendar_time_s cal = {CALENDAR_TIME_UTIME, {0}};
   calendar_record_get_caltime(rec, _calendar_event.until_time, &cal);
   if (cal.time.utime > 0 && CALENDAR_RECORD_NO_UNTIL != cal.time.utime) {
@@ -1856,25 +1866,13 @@ PlatformResult CalendarItem::ToJson(int type, calendar_record_h rec,
     }
     out["availability"] = picojson::value(enum_str);
 
-    //check if reccurence count is greater than 0
-    int occurrence_count;
-    status = CalendarRecord::GetInt(rec, _calendar_event.count, &occurrence_count);
+    picojson::object rec_rule = picojson::object();
+    status = RecurrenceRuleToJson(rec, &rec_rule);
     if (status.IsError()) {
       LoggerE("Error: %s", status.message().c_str());
       return status;
     }
-
-    if (occurrence_count) {
-      picojson::object rec_rule = picojson::object();
-      rec_rule["occurrenceCount"] = picojson::value(static_cast<double>(occurrence_count));
-
-      status = RecurrenceRuleToJson(rec, &rec_rule);
-      if (status.IsError()) {
-        LoggerE("Error: %s", status.message().c_str());
-        return status;
-      }
-      out["recurrenceRule"] = picojson::value(rec_rule);
-    }
+    out["recurrenceRule"] = picojson::value(rec_rule);
   } else {
     status = GetEnum(type, rec, "status", kTaskStatus, &enum_str);
     if (status.IsError()) {

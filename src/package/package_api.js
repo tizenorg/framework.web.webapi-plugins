@@ -34,14 +34,10 @@ extension.setMessageListener(function(json) {
   var result = JSON.parse(json);
 
   if (result.hasOwnProperty('listener')) {
-    setTimeout(function() {
-      invokeListener(result);
-    }, 0);
+    invokeListener(result);
   } else {
     var callback = callbacks[result['callbackId']];
-    setTimeout(function() {
-      callback(result);
-    }, 0);
+    callback(result);
   }
 });
 

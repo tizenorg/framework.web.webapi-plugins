@@ -34,33 +34,36 @@ extension.setMessageListener(function(json) {
     console.logd('Ignoring unknown callback: ' + result.callbackId);
     return;
   }
-  setTimeout(function() {
-    if (result.status == 'progress') {
-      if (callback.onprogress) {
-        var receivedSize = result.receivedSize;
-        var totalSize = result.totalSize;
-        callback.onprogress(result.callbackId, receivedSize, totalSize);
-      }
-    } else if (result.status == 'paused') {
-      if (callback.onpaused) {
-        callback.onpaused(result.callbackId);
-      }
-    } else if (result.status == 'canceled') {
-      if (callback.oncanceled) {
-        callback.oncanceled(result.callbackId);
-      }
-    } else if (result.status == 'completed') {
-      if (callback.oncompleted) {
-        var fullPath = result.fullPath;
-        callback.oncompleted(result.callbackId, fullPath);
-      }
-    } else if (result.status == 'error') {
-      if (callback.onfailed) {
-        callback.onfailed(result.callbackId,
-            new WebAPIException(result.error));
-      }
+
+  if (result.status == 'progress') {
+    if (callback.onprogress) {
+      var receivedSize = result.receivedSize;
+      var totalSize = result.totalSize;
+      callback.onprogress(result.callbackId, receivedSize, totalSize);
     }
-  }, 0);
+  }
+  else if (result.status == 'paused') {
+    if (callback.onpaused) {
+      callback.onpaused(result.callbackId);
+    }
+  }
+  else if (result.status == 'canceled') {
+    if (callback.oncanceled) {
+      callback.oncanceled(result.callbackId);
+    }
+  }
+  else if (result.status == 'completed') {
+    if (callback.oncompleted) {
+      var fullPath = result.fullPath;
+      callback.oncompleted(result.callbackId, fullPath);
+    }
+  }
+  else if (result.status == 'error') {
+    if (callback.onfailed) {
+      callback.onfailed(result.callbackId,
+              new WebAPIException(result.error));
+    }
+  }
 });
 
 function nextCallbackId() {

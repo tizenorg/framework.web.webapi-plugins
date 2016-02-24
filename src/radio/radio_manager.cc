@@ -366,7 +366,10 @@ PlatformResult FMRadioManager::Start(double frequency) {
     return GetPlatformResult("radio_get_state() failed.", err);
   }
 
-  if (RADIO_STATE_READY != state && RADIO_STATE_PLAYING != state) {
+  if (RADIO_STATE_READY != state) {
+    if (RADIO_STATE_PLAYING == state) {
+      return PlatformResult(ErrorCode::NO_ERROR);
+    }
     return PlatformResult(ErrorCode::INVALID_STATE_ERR, "Invalid radio state.");
   }
 
@@ -376,11 +379,7 @@ PlatformResult FMRadioManager::Start(double frequency) {
     return result;
   }
 
-  if (RADIO_STATE_READY == state) {
-    return CheckError("radio_start", radio_start(radio_instance_));
-  } else {
-    return result;
-  }
+  return CheckError("radio_start", radio_start(radio_instance_));
 }
 
 PlatformResult FMRadioManager::Stop() {
